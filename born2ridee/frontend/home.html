@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Plan your trip with Born 2 Ride">
+    <title>Plan Trip - Born 2 Ride</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <style>
+        .location-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+
+        .location-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+
+        .location-dot {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+        }
+
+        .location-dot.origin {
+            background: var(--success);
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.5);
+        }
+
+        .location-dot.destination {
+            background: var(--error);
+            box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+        }
+
+        .current-location {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-3);
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: var(--radius-lg);
+            color: var(--success);
+            font-size: 0.875rem;
+            margin-top: var(--space-3);
+        }
+
+        .quick-destinations {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-2);
+            margin-top: var(--space-4);
+        }
+
+        .quick-dest {
+            padding: var(--space-2) var(--space-4);
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-full);
+            font-size: 0.8125rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            white-space: nowrap;
+        }
+
+        .quick-dest:hover {
+            border-color: var(--primary-500);
+            color: var(--primary-500);
+            background: rgba(255, 107, 53, 0.05);
+            transform: translateY(-2px);
+        }
+
+        .quick-dest.active {
+            background: var(--primary-gradient);
+            border-color: transparent;
+            color: white;
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+        }
+
+        .distance-preview {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-4);
+            padding: var(--space-4);
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: var(--radius-lg);
+            margin: var(--space-6) 0;
+        }
+
+        .distance-icon {
+            font-size: 1.5rem;
+        }
+
+        .distance-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-purple);
+        }
+
+        .section-label {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: var(--space-4);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container flex items-center justify-between" style="max-width: 100%; padding: 0 var(--space-6);">
+            <a href="index.html" class="nav-brand">
+                <span class="logo-icon">🏍️</span>
+                <span class="gradient-text">Born 2 Ride</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="home.html" class="nav-link active">Home</a>
+                <a href="stops.html" class="nav-link">Stops</a>
+                <a href="sos.html" class="nav-link">SOS</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="page">
+        <div class="container" style="max-width: 600px;">
+            <!-- Page Header -->
+            <div class="page-header text-center">
+                <h1 class="page-title">Plan Your <span class="gradient-text">Trip</span></h1>
+                <p class="page-subtitle">Enter your destination and let's get you on the road!</p>
+            </div>
+
+            <!-- Location Input Card -->
+            <div class="location-card animate-fade-in">
+                <div class="location-header">
+                    <div class="location-dot origin"></div>
+                    <span style="font-weight: 600;">Pickup Location</span>
+                </div>
+
+                <div class="input-group">
+                    <span class="input-icon">📍</span>
+                    <input type="text" class="form-input" id="originInput" placeholder="Enter pickup location"
+                        value="Chennai, Tamil Nadu">
+                </div>
+
+                <div class="current-location" id="useCurrentLocation">
+                    <span>📌</span>
+                    <span>Using current location: Chennai, Tamil Nadu</span>
+                </div>
+            </div>
+
+            <div class="location-card animate-fade-in delay-1">
+                <div class="location-header">
+                    <div class="location-dot destination"></div>
+                    <span style="font-weight: 600;">Destination</span>
+                </div>
+
+                <div class="input-group">
+                    <span class="input-icon">🎯</span>
+                    <input type="text" class="form-input" id="destinationInput" placeholder="Where do you want to go?">
+                </div>
+
+                <div class="quick-destinations">
+                    <span
+                        style="font-size: 0.75rem; color: var(--text-muted); margin-right: var(--space-2); width: 100%; margin-bottom: var(--space-2); display: block;">Popular
+                        Getaways:</span>
+                    <button class="quick-dest" data-dest="Bangalore" data-distance="350" data-lat="12.9716"
+                        data-lng="77.5946">Bangalore</button>
+                    <button class="quick-dest" data-dest="Pondicherry" data-distance="150" data-lat="11.9416"
+                        data-lng="79.8083">Pondicherry</button>
+                    <button class="quick-dest" data-dest="Mysore" data-distance="480" data-lat="12.2958"
+                        data-lng="76.6394">Mysore</button>
+                    <button class="quick-dest" data-dest="Ooty" data-distance="550" data-lat="11.4102"
+                        data-lng="76.6950">Ooty</button>
+                    <button class="quick-dest" data-dest="Madurai" data-distance="460" data-lat="9.9252"
+                        data-lng="78.1198">Madurai</button>
+                    <button class="quick-dest" data-dest="Coimbatore" data-distance="500" data-lat="11.0168"
+                        data-lng="76.9558">Coimbatore</button>
+                    <button class="quick-dest" data-dest="Tirupati" data-distance="135" data-lat="13.6288"
+                        data-lng="79.4192">Tirupati</button>
+                    <button class="quick-dest" data-dest="Kodaikanal" data-distance="520" data-lat="10.2381"
+                        data-lng="77.4892">Kodaikanal</button>
+                    <button class="quick-dest" data-dest="Mahabalipuram" data-distance="60" data-lat="12.6208"
+                        data-lng="80.1945">Mahabalipuram</button>
+                    <button class="quick-dest" data-dest="Yercaud" data-distance="360" data-lat="11.7753"
+                        data-lng="78.2093">Yercaud</button>
+                    <button class="quick-dest" data-dest="Rameshwaram" data-distance="560" data-lat="9.2876"
+                        data-lng="79.3129">Rameshwaram</button>
+                    <button class="quick-dest" data-dest="Kanyakumari" data-distance="700" data-lat="8.0883"
+                        data-lng="77.5385">Kanyakumari</button>
+                </div>
+            </div>
+
+            <!-- Distance Preview -->
+            <div class="distance-preview animate-fade-in delay-2" id="distancePreview" style="display: none;">
+                <span class="distance-icon">📏</span>
+                <div>
+                    <div style="font-size: 0.75rem; color: var(--text-secondary);">Estimated Distance</div>
+                    <div class="distance-value" id="distanceValue">-- km</div>
+                </div>
+            </div>
+
+            <!-- Vehicle Selection -->
+            <div class="animate-fade-in delay-2">
+                <div class="section-label">
+                    <span>🚗</span>
+                    <span>Select Your Vehicle</span>
+                </div>
+
+                <div class="vehicle-grid">
+                    <div class="vehicle-option" data-vehicle="bike">
+                        <div class="vehicle-icon">🏍️</div>
+                        <div class="vehicle-name">Bike</div>
+                        <div class="vehicle-mileage">~45 km/L</div>
+                    </div>
+
+                    <div class="vehicle-option" data-vehicle="car">
+                        <div class="vehicle-icon">🚗</div>
+                        <div class="vehicle-name">Car</div>
+                        <div class="vehicle-mileage">~15 km/L</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fuel Price Input -->
+            <div class="form-group animate-fade-in delay-3" style="margin-top: var(--space-6);">
+                <label class="form-label">
+                    <span>⛽</span> Current Fuel Price (₹/L)
+                </label>
+                <input type="number" class="form-input" id="fuelPrice" value="104" min="50" max="200" step="0.5">
+            </div>
+
+            <!-- Calculate Button -->
+            <button class="btn btn-primary btn-lg btn-full animate-fade-in delay-4" id="calculateBtn"
+                style="margin-top: var(--space-6);">
+                <span>⚡</span>
+                Calculate Route & Fuel
+            </button>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="bottom-nav-item active">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="stops.html" class="bottom-nav-item">
+            <span class="nav-icon">🍽️</span>
+            <span>Stops</span>
+        </a>
+        <a href="sos.html" class="bottom-nav-item">
+            <span class="nav-icon">🚨</span>
+            <span>SOS</span>
+        </a>
+        <a href="summary.html" class="bottom-nav-item">
+            <span class="nav-icon">📊</span>
+            <span>Summary</span>
+        </a>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script>
+        // State
+        let selectedVehicle = null;
+        let selectedDistance = 0;
+        let selectedDestination = '';
+
+        // Vehicle selection
+        document.querySelectorAll('.vehicle-option').forEach(option => {
+            option.addEventListener('click', function () {
+                document.querySelectorAll('.vehicle-option').forEach(o => o.classList.remove('selected'));
+                this.classList.add('selected');
+                selectedVehicle = this.dataset.vehicle;
+            });
+        });
+
+        // Quick destination buttons
+        document.querySelectorAll('.quick-dest').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const dest = this.dataset.dest;
+                const distance = parseInt(this.dataset.distance);
+                const lat = parseFloat(this.dataset.lat);
+                const lng = parseFloat(this.dataset.lng);
+
+                document.getElementById('destinationInput').value = dest;
+                selectedDestination = dest;
+                selectedDistance = distance;
+                window.selectedDestLat = lat;
+                window.selectedDestLng = lng;
+
+                // Show distance preview
+                document.getElementById('distancePreview').style.display = 'flex';
+                document.getElementById('distanceValue').textContent = `${distance} km`;
+
+                // Update active state
+                document.querySelectorAll('.quick-dest').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Destination input change
+        document.getElementById('destinationInput').addEventListener('input', function () {
+            const dest = this.value.trim();
+            if (dest) {
+                // Generate a mock distance based on destination length (for demo)
+                selectedDistance = Math.floor(100 + Math.random() * 400);
+                selectedDestination = dest;
+
+                document.getElementById('distancePreview').style.display = 'flex';
+                document.getElementById('distanceValue').textContent = `${selectedDistance} km`;
+            } else {
+                document.getElementById('distancePreview').style.display = 'none';
+            }
+        });
+
+        // Calculate button
+        document.getElementById('calculateBtn').addEventListener('click', async function () {
+            const origin = document.getElementById('originInput').value.trim();
+            const destination = document.getElementById('destinationInput').value.trim();
+            const fuelPrice = parseFloat(document.getElementById('fuelPrice').value) || 104;
+
+            // Validation
+            if (!origin) {
+                Utils.showToast('Please enter pickup location', 'error');
+                return;
+            }
+
+            if (!destination) {
+                Utils.showToast('Please enter destination', 'error');
+                return;
+            }
+
+            if (!selectedVehicle) {
+                Utils.showToast('Please select a vehicle', 'error');
+                return;
+            }
+
+            if (selectedDistance === 0) {
+                selectedDistance = Math.floor(100 + Math.random() * 400);
+            }
+
+            // Save trip data
+            const tripData = {
+                origin: origin,
+                destination: destination,
+                origin_lat: 13.0827, // Chennai Default
+                origin_lng: 80.2707,
+                dest_lat: window.selectedDestLat || 12.9716,
+                dest_lng: window.selectedDestLng || 77.5946,
+                distance_km: selectedDistance,
+                vehicle_type: selectedVehicle,
+                fuel_price: fuelPrice,
+                stops: []
+            };
+
+            TripStorage.save(tripData);
+
+            // Show loading
+            this.innerHTML = '<div class="loader" style="width: 24px; height: 24px;"></div> Calculating...';
+            this.disabled = true;
+
+            try {
+                // Call API to calculate fuel
+                const fuelData = await API.calculateFuel(selectedDistance, selectedVehicle, fuelPrice);
+
+                // Update trip data with fuel calculation
+                TripStorage.update({
+                    fuel_liters: fuelData.fuel_liters,
+                    fuel_cost: fuelData.total_fuel_cost,
+                    mileage: fuelData.mileage_kmpl
+                });
+
+                Utils.showToast('Route calculated successfully!', 'success');
+
+                // Redirect to route page
+                setTimeout(() => {
+                    window.location.href = 'route.html';
+                }, 1000);
+
+            } catch (error) {
+                console.error('Error calculating fuel:', error);
+
+                // Fallback calculation if API fails
+                const mileage = selectedVehicle === 'bike' ? 45 : 15;
+                const fuelLiters = selectedDistance / mileage;
+                const fuelCost = fuelLiters * fuelPrice;
+
+                TripStorage.update({
+                    fuel_liters: fuelLiters.toFixed(2),
+                    fuel_cost: fuelCost.toFixed(2),
+                    mileage: mileage
+                });
+
+                Utils.showToast('Calculated offline!', 'success');
+
+                setTimeout(() => {
+                    window.location.href = 'route.html';
+                }, 1000);
+            }
+        });
+    </script>
+</body>
+
+</html>

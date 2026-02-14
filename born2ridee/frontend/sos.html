@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Emergency SOS - Get help instantly">
+    <title>Emergency SOS - Born 2 Ride</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        .sos-section {
+            text-align: center;
+            padding: var(--space-8) 0;
+        }
+
+        .sos-button-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: var(--space-8);
+        }
+
+        .sos-button {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            cursor: pointer;
+            border: none;
+            box-shadow:
+                0 0 0 8px rgba(239, 68, 68, 0.2),
+                0 0 40px rgba(239, 68, 68, 0.4);
+            transition: all var(--transition-base);
+            animation: pulse-sos 2s infinite;
+        }
+
+        .sos-button:hover {
+            transform: scale(1.05);
+            box-shadow:
+                0 0 0 12px rgba(239, 68, 68, 0.3),
+                0 0 60px rgba(239, 68, 68, 0.5);
+        }
+
+        .sos-button:active {
+            transform: scale(0.95);
+        }
+
+        .sos-button.activated {
+            animation: none;
+            background: var(--success);
+            box-shadow:
+                0 0 0 8px rgba(16, 185, 129, 0.2),
+                0 0 40px rgba(16, 185, 129, 0.4);
+        }
+
+        .sos-icon {
+            font-size: 3rem;
+        }
+
+        @keyframes pulse-sos {
+
+            0%,
+            100% {
+                box-shadow:
+                    0 0 0 8px rgba(239, 68, 68, 0.2),
+                    0 0 40px rgba(239, 68, 68, 0.4);
+            }
+
+            50% {
+                box-shadow:
+                    0 0 0 16px rgba(239, 68, 68, 0.1),
+                    0 0 60px rgba(239, 68, 68, 0.3);
+            }
+        }
+
+        .sos-info {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: var(--space-8);
+        }
+
+        .quick-dial {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+
+        .quick-dial-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-4);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            cursor: pointer;
+            transition: all var(--transition-base);
+            text-decoration: none;
+            color: var(--text-primary);
+        }
+
+        .quick-dial-btn:hover {
+            border-color: var(--error);
+            transform: translateY(-4px);
+        }
+
+        .quick-dial-icon {
+            font-size: 2rem;
+        }
+
+        .quick-dial-number {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--error);
+        }
+
+        .quick-dial-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .services-section {
+            margin-top: var(--space-8);
+        }
+
+        .services-list {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-3);
+            margin-top: var(--space-6);
+        }
+
+        .emergency-card {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-4);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            transition: all var(--transition-base);
+        }
+
+        .emergency-card:hover {
+            border-color: var(--error);
+            transform: translateX(4px);
+        }
+
+        .emergency-icon {
+            width: 50px;
+            height: 50px;
+            background: rgba(239, 68, 68, 0.1);
+            border-radius: var(--radius-md);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .emergency-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .emergency-name {
+            font-weight: 600;
+            margin-bottom: var(--space-1);
+        }
+
+        .emergency-meta {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .emergency-badge {
+            padding: 2px 8px;
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+            border-radius: var(--radius-full);
+            font-size: 0.65rem;
+            text-transform: uppercase;
+        }
+
+        .emergency-call {
+            padding: var(--space-2) var(--space-4);
+            background: var(--error);
+            color: white;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+            transition: all var(--transition-fast);
+        }
+
+        .emergency-call:hover {
+            background: #DC2626;
+            transform: scale(1.05);
+        }
+
+        .sos-modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all var(--transition-base);
+        }
+
+        .sos-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sos-modal-content {
+            text-align: center;
+            padding: var(--space-8);
+        }
+
+        .sos-modal-icon {
+            font-size: 5rem;
+            margin-bottom: var(--space-4);
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        .sos-modal-title {
+            font-size: 2rem;
+            color: var(--error);
+            margin-bottom: var(--space-2);
+        }
+
+        .sos-modal-text {
+            color: var(--text-secondary);
+            margin-bottom: var(--space-6);
+        }
+
+        .sos-modal-actions {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .sos-cancel-btn {
+            background: var(--bg-card);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-lg);
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .sos-cancel-btn:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .map-section {
+            margin-bottom: var(--space-8);
+            border-radius: var(--radius-xl);
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container flex items-center justify-between" style="max-width: 100%; padding: 0 var(--space-6);">
+            <a href="index.html" class="nav-brand">
+                <span class="logo-icon">🏍️</span>
+                <span class="gradient-text">Born 2 Ride</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="home.html" class="nav-link">Home</a>
+                <a href="stops.html" class="nav-link">Stops</a>
+                <a href="sos.html" class="nav-link active">SOS</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- SOS Modal -->
+    <div class="sos-modal" id="sosModal">
+        <div class="sos-modal-content">
+            <div class="sos-modal-icon">🚨</div>
+            <h2 class="sos-modal-title">SOS Activated!</h2>
+            <p class="sos-modal-text">
+                Contacting emergency services...<br>
+                Your location is being shared.
+            </p>
+            <div class="sos-modal-actions">
+                <a href="tel:100" class="btn btn-primary btn-lg">
+                    📞 Call Police (100)
+                </a>
+                <a href="tel:108" class="btn btn-secondary btn-lg">
+                    🚑 Call Ambulance (108)
+                </a>
+                <button class="sos-cancel-btn" id="cancelSos">
+                    Cancel SOS
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="page">
+        <div class="container" style="max-width: 600px;">
+            <!-- Page Header -->
+            <div class="page-header text-center">
+                <h1 class="page-title">Emergency <span class="gradient-text">SOS</span></h1>
+                <p class="page-subtitle">Get help instantly when you need it most</p>
+            </div>
+
+            <!-- SOS Button Section -->
+            <div class="sos-section animate-fade-in">
+                <div class="sos-button-container">
+                    <button class="sos-button" id="sosButton">
+                        <span class="sos-icon">🆘</span>
+                        <span>SOS</span>
+                    </button>
+                </div>
+                <p class="sos-info">
+                    Press and hold for 2 seconds to activate emergency SOS.<br>
+                    Your location will be shared with emergency services.
+                </p>
+            </div>
+
+            <!-- Quick Dial -->
+            <h3 style="margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2);">
+                <span>📞</span> Quick Dial
+            </h3>
+
+            <div class="quick-dial animate-fade-in delay-1">
+                <a href="tel:100" class="quick-dial-btn">
+                    <div class="quick-dial-icon">🚔</div>
+                    <div class="quick-dial-number">100</div>
+                    <div class="quick-dial-label">Police</div>
+                </a>
+
+                <a href="tel:108" class="quick-dial-btn">
+                    <div class="quick-dial-icon">🚑</div>
+                    <div class="quick-dial-number">108</div>
+                    <div class="quick-dial-label">Ambulance</div>
+                </a>
+
+                <a href="tel:101" class="quick-dial-btn">
+                    <div class="quick-dial-icon">🚒</div>
+                    <div class="quick-dial-number">101</div>
+                    <div class="quick-dial-label">Fire</div>
+                </a>
+            </div>
+
+            <!-- Map View -->
+            <div class="map-section animate-fade-in delay-2">
+                <div id="sosMap" style="height: 300px; z-index: 1;"></div>
+            </div>
+
+            <!-- Emergency Services List -->
+            <div class="services-section">
+                <h3 style="margin-bottom: var(--space-4); display: flex; align-items: center; gap: var(--space-2);">
+                    <span>🏥</span> Nearby Emergency Services
+                </h3>
+
+                <div class="services-list" id="servicesList">
+                    <div class="text-center" style="padding: var(--space-8);">
+                        <div class="loader" style="margin: 0 auto;"></div>
+                        <p style="color: var(--text-secondary); margin-top: var(--space-4);">Loading services...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="bottom-nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="stops.html" class="bottom-nav-item">
+            <span class="nav-icon">🍽️</span>
+            <span>Stops</span>
+        </a>
+        <a href="sos.html" class="bottom-nav-item active">
+            <span class="nav-icon">🚨</span>
+            <span>SOS</span>
+        </a>
+        <a href="summary.html" class="bottom-nav-item">
+            <span class="nav-icon">📊</span>
+            <span>Summary</span>
+        </a>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script>
+        // SOS Button functionality
+        const sosButton = document.getElementById('sosButton');
+        const sosModal = document.getElementById('sosModal');
+        const cancelSos = document.getElementById('cancelSos');
+
+        let holdTimer = null;
+        let holdStart = 0;
+
+        sosButton.addEventListener('mousedown', startHold);
+        sosButton.addEventListener('touchstart', startHold);
+        sosButton.addEventListener('mouseup', endHold);
+        sosButton.addEventListener('touchend', endHold);
+        sosButton.addEventListener('mouseleave', endHold);
+
+        function startHold(e) {
+            e.preventDefault();
+            holdStart = Date.now();
+            holdTimer = setTimeout(() => {
+                activateSOS();
+            }, 2000);
+        }
+
+        function endHold() {
+            clearTimeout(holdTimer);
+            const holdDuration = Date.now() - holdStart;
+            if (holdDuration < 2000 && holdDuration > 100) {
+                Utils.showToast('Hold for 2 seconds to activate SOS', 'error');
+            }
+        }
+
+        function activateSOS() {
+            sosModal.classList.add('active');
+            sosButton.classList.add('activated');
+            sosButton.innerHTML = '<span class="sos-icon">✓</span><span>Active</span>';
+
+            if (navigator.vibrate) {
+                navigator.vibrate([200, 100, 200]);
+            }
+        }
+
+        cancelSos.addEventListener('click', function () {
+            sosModal.classList.remove('active');
+            sosButton.classList.remove('activated');
+            sosButton.innerHTML = '<span class="sos-icon">🆘</span><span>SOS</span>';
+            Utils.showToast('SOS cancelled', 'success');
+        });
+
+        // Map Initialization
+        let sosMap;
+        function initSOSMap(services) {
+            // Default center (Chennai)
+            const map = L.map('sosMap').setView([13.0827, 80.2707], 12);
+            sosMap = map;
+
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap contributors &copy; CARTO'
+            }).addTo(map);
+
+            const markers = [];
+            services.forEach(service => {
+                const marker = L.marker([service.latitude, service.longitude]).addTo(map);
+                marker.bindPopup(`
+                    <strong>${service.name}</strong><br>
+                    ${service.service_type_display}<br>
+                    <a href="tel:${service.phone}" style="color: var(--error); font-weight: 600;">Call: ${service.phone}</a>
+                `);
+                markers.push([service.latitude, service.longitude]);
+            });
+
+            if (markers.length > 0) {
+                map.fitBounds(L.latLngBounds(markers), { padding: [30, 30] });
+            }
+        }
+
+        // Load emergency services
+        async function loadEmergencyServices() {
+            const container = document.getElementById('servicesList');
+
+            try {
+                const services = await API.getEmergencyServices();
+
+                container.innerHTML = services.map((service, index) => `
+                    <div class="emergency-card animate-fade-in" style="animation-delay: ${index * 0.1}s">
+                        <div class="emergency-icon">
+                            ${Utils.getEmergencyIcon(service.service_type)}
+                        </div>
+                        <div class="emergency-info">
+                            <div class="emergency-name">${service.name}</div>
+                            <div class="emergency-meta">
+                                <span>${service.service_type_display || service.service_type}</span>
+                                ${service.is_24x7 ? '<span class="emergency-badge">24x7</span>' : ''}
+                            </div>
+                        </div>
+                        <a href="tel:${service.phone.replace(/\s/g, '')}" class="emergency-call">
+                            📞 ${service.phone}
+                        </a>
+                    </div>
+                `).join('');
+
+                initSOSMap(services);
+
+            } catch (error) {
+                console.error('Error loading services:', error);
+                container.innerHTML = `
+                    <div class="text-center" style="padding: var(--space-8); color: var(--text-secondary);">
+                        <p>Unable to load emergency services.</p>
+                        <p style="font-size: 0.875rem;">Use quick dial buttons above.</p>
+                        <button class="btn btn-secondary" onclick="loadEmergencyServices()" style="margin-top: var(--space-4);">
+                            Try Again
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Initialize
+        loadEmergencyServices();
+    </script>
+</body>
+
+</html>

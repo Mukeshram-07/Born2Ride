@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Born 2 Ride - Your Smart Travel Companion. Plan routes, calculate fuel costs, find stops, and travel safely.">
+    <title>Born 2 Ride - Your Smart Travel Companion</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* Landing Page Specific Styles */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-6);
+        }
+        
+        .how-it-works {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-2xl);
+            padding: var(--space-12);
+            margin: var(--space-16) 0;
+        }
+        
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: var(--space-6);
+            counter-reset: step;
+        }
+        
+        .step-card {
+            position: relative;
+            padding: var(--space-8);
+            background: var(--bg-card);
+            border-radius: var(--radius-xl);
+            text-align: center;
+        }
+        
+        .step-card::before {
+            counter-increment: step;
+            content: counter(step);
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 40px;
+            background: var(--primary-gradient);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .step-icon {
+            font-size: 3rem;
+            margin: var(--space-4) 0;
+        }
+        
+        .cta-section {
+            text-align: center;
+            padding: var(--space-16) 0;
+            background: linear-gradient(180deg, transparent 0%, rgba(255, 107, 53, 0.05) 50%, transparent 100%);
+            border-radius: var(--radius-2xl);
+        }
+        
+        .problem-solution {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-8);
+            margin: var(--space-12) 0;
+        }
+        
+        .ps-card {
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+        }
+        
+        .ps-card.problem {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        
+        .ps-card.solution {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        
+        .ps-card h3 {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-4);
+        }
+        
+        .ps-card.problem h3 {
+            color: var(--error);
+        }
+        
+        .ps-card.solution h3 {
+            color: var(--success);
+        }
+        
+        .ps-card ul {
+            color: var(--text-secondary);
+        }
+        
+        .ps-card li {
+            padding: var(--space-2) 0;
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-2);
+        }
+        
+        .ps-card li::before {
+            content: '•';
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container flex items-center justify-between" style="max-width: 100%; padding: 0 var(--space-6);">
+            <a href="index.html" class="nav-brand">
+                <span class="logo-icon">🏍️</span>
+                <span class="gradient-text">Born 2 Ride</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="#features" class="nav-link">Features</a>
+                <a href="#how-it-works" class="nav-link">How It Works</a>
+                <a href="login.html" class="btn btn-outline">Get Started</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content animate-fade-in">
+                <div class="hero-badge">
+                    <span>🚀</span>
+                    <span>Smart Travel Planning Made Easy</span>
+                </div>
+                
+                <h1 class="hero-title">
+                    Your Journey,<br>
+                    <span class="gradient-text">Perfectly Planned</span>
+                </h1>
+                
+                <p class="hero-subtitle">
+                    Born 2 Ride is your ultimate travel companion. Calculate fuel costs, 
+                    discover smart stops, and stay safe on every journey. 
+                    Whether it's a quick ride or a long road trip - we've got you covered.
+                </p>
+                
+                <div class="hero-actions">
+                    <a href="login.html" class="btn btn-primary btn-lg">
+                        <span>🚀</span>
+                        Start Your Journey
+                    </a>
+                    <a href="#features" class="btn btn-secondary btn-lg">
+                        <span>📱</span>
+                        Explore Features
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Decorative Background -->
+        <div style="position: absolute; right: 10%; top: 50%; transform: translateY(-50%); font-size: 15rem; opacity: 0.1; pointer-events: none;">
+            🏍️
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="section">
+        <div class="container">
+            <div class="stats-grid glass-card">
+                <div class="stat-card animate-fade-in delay-1">
+                    <div class="stat-value">500+</div>
+                    <div class="stat-label">Happy Travelers</div>
+                </div>
+                <div class="stat-card animate-fade-in delay-2">
+                    <div class="stat-value">10K+</div>
+                    <div class="stat-label">Trips Planned</div>
+                </div>
+                <div class="stat-card animate-fade-in delay-3">
+                    <div class="stat-value">₹50L+</div>
+                    <div class="stat-label">Fuel Saved</div>
+                </div>
+                <div class="stat-card animate-fade-in delay-4">
+                    <div class="stat-value">24/7</div>
+                    <div class="stat-label">SOS Support</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem & Solution -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Why <span class="gradient-text">Born 2 Ride</span>?</h2>
+                <p class="section-subtitle">We understand the challenges of road travel and built the perfect solution</p>
+            </div>
+            
+            <div class="problem-solution">
+                <div class="ps-card problem">
+                    <h3>
+                        <span style="font-size: 1.5rem;">❌</span>
+                        The Problem
+                    </h3>
+                    <ul>
+                        <li>No idea about fuel costs before starting a trip</li>
+                        <li>Difficulty finding reliable stops for food & rest</li>
+                        <li>Panic when vehicle breaks down on highway</li>
+                        <li>No single app for complete trip planning</li>
+                        <li>Emergency contacts not readily available</li>
+                    </ul>
+                </div>
+                
+                <div class="ps-card solution">
+                    <h3>
+                        <span style="font-size: 1.5rem;">✓</span>
+                        Our Solution
+                    </h3>
+                    <ul>
+                        <li>Accurate fuel cost estimation before you ride</li>
+                        <li>Curated list of highway stops with ratings</li>
+                        <li>One-click SOS with nearby emergency services</li>
+                        <li>Complete trip planning in one beautiful app</li>
+                        <li>All emergency contacts at your fingertips</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="section" id="features">
+        <div class="container">
+            <div class="section-header">
+                <h2 class="section-title">Powerful <span class="gradient-text">Features</span></h2>
+                <p class="section-subtitle">Everything you need for a safe and enjoyable road trip</p>
+            </div>
+            
+            <div class="feature-grid">
+                <div class="feature-card animate-fade-in delay-1">
+                    <div class="feature-icon">⛽</div>
+                    <h3>Fuel Calculator</h3>
+                    <p>Get accurate fuel cost estimates based on your vehicle type and route distance</p>
+                </div>
+                
+                <div class="feature-card animate-fade-in delay-2">
+                    <div class="feature-icon">🗺️</div>
+                    <h3>Route Planning</h3>
+                    <p>Plan your route with distance calculations and estimated travel time</p>
+                </div>
+                
+                <div class="feature-card animate-fade-in delay-3">
+                    <div class="feature-icon">🍽️</div>
+                    <h3>Smart Stops</h3>
+                    <p>Discover the best food joints, hotels, and workshops along your route</p>
+                </div>
+                
+                <div class="feature-card animate-fade-in delay-4">
+                    <div class="feature-icon">🚨</div>
+                    <h3>Emergency SOS</h3>
+                    <p>One-tap access to police, hospitals, and roadside assistance</p>
+                </div>
+                
+                <div class="feature-card animate-fade-in delay-1">
+                    <div class="feature-icon">📊</div>
+                    <h3>Trip Summary</h3>
+                    <p>Complete breakdown of your trip including costs and stops visited</p>
+                </div>
+                
+                <div class="feature-card animate-fade-in delay-2">
+                    <div class="feature-icon">🚴</div>
+                    <h3>Multi-Vehicle</h3>
+                    <p>Support for bikes and cars with accurate mileage calculations</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="section" id="how-it-works">
+        <div class="container">
+            <div class="how-it-works">
+                <div class="section-header">
+                    <h2 class="section-title">How It <span class="gradient-text">Works</span></h2>
+                    <p class="section-subtitle">Get started in just 4 simple steps</p>
+                </div>
+                
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-icon">📍</div>
+                        <h3>Set Destination</h3>
+                        <p>Enter your pickup and drop location</p>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-icon">🏍️</div>
+                        <h3>Choose Vehicle</h3>
+                        <p>Select bike or car for accurate calculations</p>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-icon">⛽</div>
+                        <h3>View Estimates</h3>
+                        <p>Get fuel cost, distance, and time estimates</p>
+                    </div>
+                    
+                    <div class="step-card">
+                        <div class="step-icon">🚀</div>
+                        <h3>Start Riding!</h3>
+                        <p>Hit the road with all info at your fingertips</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="section">
+        <div class="container">
+            <div class="cta-section">
+                <h2 class="section-title">Ready to Start Your <span class="gradient-text">Adventure</span>?</h2>
+                <p class="section-subtitle" style="margin-bottom: var(--space-8);">
+                    Join thousands of travelers who trust Born 2 Ride for their journeys
+                </p>
+                <a href="login.html" class="btn btn-primary btn-lg">
+                    <span>🏍️</span>
+                    Get Started Now - It's Free!
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="nav-brand" style="justify-content: center; margin-bottom: var(--space-4);">
+                <span class="logo-icon">🏍️</span>
+                <span class="gradient-text">Born 2 Ride</span>
+            </div>
+            <p class="footer-text">
+                &copy; 2024 Born 2 Ride. Your Smart Travel Companion.<br>
+                Made with ❤️ for Road Travelers
+            </p>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+</body>
+</html>

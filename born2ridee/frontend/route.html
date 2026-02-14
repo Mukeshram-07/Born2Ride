@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="View your route and fuel cost estimation">
+    <title>Route & Fuel - Born 2 Ride</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Leaflet Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <style>
+        .route-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+            padding: var(--space-6);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--space-6);
+        }
+
+        .route-locations {
+            flex: 1;
+        }
+
+        .route-point {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            padding: var(--space-2) 0;
+        }
+
+        .route-point-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .route-point-dot.start {
+            background: var(--success);
+        }
+
+        .route-point-dot.end {
+            background: var(--error);
+        }
+
+        .route-connector {
+            width: 2px;
+            height: 20px;
+            background: linear-gradient(to bottom, var(--success), var(--error));
+            margin-left: 5px;
+        }
+
+        .vehicle-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-1);
+            padding: var(--space-4);
+            background: var(--bg-secondary);
+            border-radius: var(--radius-lg);
+        }
+
+        .vehicle-badge-icon {
+            font-size: 2rem;
+        }
+
+        .vehicle-badge-label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+        }
+
+        .fuel-breakdown {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .fuel-card {
+            padding: var(--space-6);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            text-align: center;
+        }
+
+        .fuel-card-icon {
+            font-size: 2rem;
+            margin-bottom: var(--space-2);
+        }
+
+        .fuel-card-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: var(--space-1);
+        }
+
+        .fuel-card-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .fuel-card.primary {
+            background: var(--primary-gradient);
+            border: none;
+        }
+
+        .fuel-card.primary .fuel-card-label {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        .tips-card {
+            padding: var(--space-6);
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.3);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--space-6);
+        }
+
+        .tips-title {
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            font-weight: 600;
+            color: var(--accent-teal);
+            margin-bottom: var(--space-4);
+        }
+
+        .tips-list {
+            color: var(--text-secondary);
+        }
+
+        .tips-list li {
+            padding: var(--space-2) 0;
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-2);
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: var(--space-4);
+        }
+
+        .action-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-2);
+            padding: var(--space-6);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+            color: var(--text-primary);
+            transition: all var(--transition-base);
+        }
+
+        .action-btn:hover {
+            border-color: var(--primary-500);
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .action-btn-icon {
+            font-size: 2rem;
+        }
+
+        .action-btn-label {
+            font-weight: 500;
+        }
+
+        .no-trip-card {
+            text-align: center;
+            padding: var(--space-12);
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-xl);
+        }
+
+        .no-trip-icon {
+            font-size: 4rem;
+            margin-bottom: var(--space-4);
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container flex items-center justify-between" style="max-width: 100%; padding: 0 var(--space-6);">
+            <a href="index.html" class="nav-brand">
+                <span class="logo-icon">🏍️</span>
+                <span class="gradient-text">Born 2 Ride</span>
+            </a>
+
+            <div class="nav-links">
+                <a href="home.html" class="nav-link">Home</a>
+                <a href="stops.html" class="nav-link">Stops</a>
+                <a href="sos.html" class="nav-link">SOS</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="page">
+        <div class="container" style="max-width: 600px;">
+            <!-- Page Header -->
+            <div class="page-header text-center">
+                <h1 class="page-title">Route & <span class="gradient-text">Fuel</span></h1>
+                <p class="page-subtitle">Your trip summary and fuel cost breakdown</p>
+            </div>
+
+            <!-- Content will be loaded dynamically -->
+            <div id="routeContent">
+                <!-- Loading State -->
+                <div class="text-center" style="padding: var(--space-12);">
+                    <div class="loader" style="margin: 0 auto;"></div>
+                    <p style="color: var(--text-secondary); margin-top: var(--space-4);">Loading trip data...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <a href="home.html" class="bottom-nav-item">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+        </a>
+        <a href="stops.html" class="bottom-nav-item">
+            <span class="nav-icon">🍽️</span>
+            <span>Stops</span>
+        </a>
+        <a href="sos.html" class="bottom-nav-item">
+            <span class="nav-icon">🚨</span>
+            <span>SOS</span>
+        </a>
+        <a href="summary.html" class="bottom-nav-item">
+            <span class="nav-icon">📊</span>
+            <span>Summary</span>
+        </a>
+    </nav>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script>
+        // Function to initialize map
+        function initMap(trip) {
+            console.log('Initializing map with trip:', trip);
+            const mapContainer = document.getElementById('map');
+            if (!mapContainer) {
+                console.error('Map container not found');
+                return;
+            }
+
+            // Remove the grid pattern and background once the map starts loading
+            mapContainer.style.background = '#0A0F1C'; // Dark background for map
+
+            // Validate coordinates
+            const originLat = parseFloat(trip.origin_lat) || 13.0827;
+            const originLng = parseFloat(trip.origin_lng) || 80.2707;
+            const destLat = parseFloat(trip.dest_lat) || 11.9416;
+            const destLng = parseFloat(trip.dest_lng) || 79.8083;
+
+            try {
+                // Initialize map with a higher default zoom and zoom control on the right
+                const map = L.map('map', {
+                    zoomControl: true,
+                    scrollWheelZoom: false // Better for mobile/scrollable pages
+                }).setView([originLat, originLng], 7);
+
+                // Use a more reliable tile provider without the {r} parameter which can cause issues
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+                    maxZoom: 19,
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                }).addTo(map);
+
+                const startIcon = L.divIcon({
+                    className: 'map-marker-container',
+                    html: `<div class="map-marker-pulse" style="background: rgba(16, 185, 129, 0.4); width: 30px; height: 30px; position: absolute; left: -7.5px; top: -7.5px; border-radius: 50%;"></div>
+                           <div style="background: #10B981; width: 15px; height: 15px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5); position: relative; z-index: 2;"></div>`,
+                    iconSize: [15, 15]
+                });
+
+                const endIcon = L.divIcon({
+                    className: 'map-marker-container',
+                    html: `<div style="background: #EF4444; width: 15px; height: 15px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 10px rgba(0,0,0,0.5); position: relative; z-index: 2;"></div>`,
+                    iconSize: [15, 15]
+                });
+
+                L.marker([originLat, originLng], { icon: startIcon, zIndexOffset: 1000 }).addTo(map)
+                    .bindPopup(`<strong>Start:</strong> ${trip.origin || 'Chennai'}`);
+
+                L.marker([destLat, destLng], { icon: endIcon, zIndexOffset: 1000 }).addTo(map)
+                    .bindPopup(`<strong>Destination:</strong> ${trip.destination || 'Pondicherry'}`);
+
+                // Draw route line - use fixed hex color
+                const latlngs = [
+                    [originLat, originLng],
+                    [destLat, destLng]
+                ];
+                const polyline = L.polyline(latlngs, {
+                    color: '#FF6B35',
+                    weight: 5,
+                    opacity: 0.8,
+                    lineJoin: 'round',
+                    dashArray: '1, 12' // Dotted line style
+                }).addTo(map);
+
+                // Fit map to show both markers
+                map.fitBounds(polyline.getBounds(), { padding: [40, 40] });
+
+                // Force layout recalculation
+                setTimeout(() => {
+                    map.invalidateSize();
+                }, 300);
+
+            } catch (error) {
+                console.error('Error initializing Leaflet map:', error);
+                mapContainer.innerHTML = `
+                    <div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-secondary);flex-direction:column;gap:1rem;text-align:center;padding:2rem;">
+                        <span style="font-size:3rem;">🗺️</span>
+                        <div>
+                            <p style="margin-bottom:0.5rem;">Wait, the map is taking longer than usual...</p>
+                            <button onclick="location.reload()" class="btn btn-secondary btn-sm" style="padding:0.25rem 0.75rem; font-size:0.8rem;">Retry Map</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // Load trip data
+        document.addEventListener('DOMContentLoaded', function () {
+            const trip = TripStorage.get();
+            const container = document.getElementById('routeContent');
+
+            if (!trip || !trip.destination) {
+                container.innerHTML = `
+                    <div class="no-trip-card animate-fade-in">
+                        <div class="no-trip-icon">🗺️</div>
+                        <h3>No Trip Planned</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: var(--space-6);">
+                            You haven't planned a trip yet. Let's get started!
+                        </p>
+                        <a href="home.html" class="btn btn-primary">
+                            <span>🚀</span>
+                            Plan a Trip
+                        </a>
+                    </div>
+                `;
+                return;
+            }
+
+            // Calculate estimated time (assuming 60 km/h average speed)
+            const estimatedTime = Math.round(trip.distance_km / 60);
+            const hours = Math.floor(estimatedTime);
+            const minutes = Math.round((estimatedTime - hours) * 60);
+            const timeString = hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`;
+
+            container.innerHTML = `
+                <!-- Route Header -->
+                <div class="route-header animate-fade-in">
+                    <div class="route-locations">
+                        <div class="route-point">
+                            <div class="route-point-dot start"></div>
+                            <span>${trip.origin || 'Current Location'}</span>
+                        </div>
+                        <div class="route-connector"></div>
+                        <div class="route-point">
+                            <div class="route-point-dot end"></div>
+                            <span>${trip.destination}</span>
+                        </div>
+                    </div>
+                    <div class="vehicle-badge">
+                        <div class="vehicle-badge-icon">${trip.vehicle_type === 'bike' ? '🏍️' : '🚗'}</div>
+                        <div class="vehicle-badge-label">${trip.vehicle_type}</div>
+                    </div>
+                </div>
+                
+                <!-- Route Map -->
+                <div id="map" class="route-map animate-fade-in delay-1" style="height: 350px; z-index: 1;"></div>
+                
+                <!-- Route Stats -->
+                <div class="route-info animate-fade-in delay-1" style="margin-top: var(--space-6);">
+                    <div class="route-stat">
+                        <div class="route-stat-value">${trip.distance_km} km</div>
+                        <div class="route-stat-label">Distance</div>
+                    </div>
+                    <div class="route-stat">
+                        <div class="route-stat-value">${timeString}</div>
+                        <div class="route-stat-label">Est. Time</div>
+                    </div>
+                    <div class="route-stat">
+                        <div class="route-stat-value">${trip.mileage || (trip.vehicle_type === 'bike' ? 45 : 15)} km/L</div>
+                        <div class="route-stat-label">Mileage</div>
+                    </div>
+                </div>
+                
+                <!-- Fuel Breakdown -->
+                <h3 style="margin: var(--space-8) 0 var(--space-4);">
+                    <span>⛽</span> Fuel Breakdown
+                </h3>
+                
+                <div class="fuel-breakdown animate-fade-in delay-2">
+                    <div class="fuel-card">
+                        <div class="fuel-card-icon">🛢️</div>
+                        <div class="fuel-card-value">${parseFloat(trip.fuel_liters || 0).toFixed(1)} L</div>
+                        <div class="fuel-card-label">Fuel Required</div>
+                    </div>
+                    
+                    <div class="fuel-card">
+                        <div class="fuel-card-icon">💰</div>
+                        <div class="fuel-card-value">₹${trip.fuel_price || 104}/L</div>
+                        <div class="fuel-card-label">Fuel Price</div>
+                    </div>
+                </div>
+                
+                <div class="fuel-card primary animate-fade-in delay-2" style="margin-bottom: var(--space-6);">
+                    <div class="fuel-card-icon">💵</div>
+                    <div class="fuel-card-value">₹${parseFloat(trip.fuel_cost || 0).toFixed(0)}</div>
+                    <div class="fuel-card-label">Total Fuel Cost</div>
+                </div>
+                
+                <!-- Tips -->
+                <div class="tips-card animate-fade-in delay-3">
+                    <div class="tips-title">
+                        <span>💡</span>
+                        Travel Tips
+                    </div>
+                    <ul class="tips-list">
+                        <li>
+                            <span>✓</span>
+                            Check tire pressure before starting the journey
+                        </li>
+                        <li>
+                            <span>✓</span>
+                            Keep emergency contacts handy (use our SOS feature!)
+                        </li>
+                        <li>
+                            <span>✓</span>
+                            Take breaks every 2 hours for long trips
+                        </li>
+                        <li>
+                            <span>✓</span>
+                            Carry extra water and snacks
+                        </li>
+                    </ul>
+                </div>
+                
+                <!-- Actions -->
+                <h3 style="margin: var(--space-8) 0 var(--space-4);">
+                    <span>🎯</span> What's Next?
+                </h3>
+                
+                <div class="action-grid animate-fade-in delay-4">
+                    <a href="stops.html" class="action-btn">
+                        <div class="action-btn-icon">🍽️</div>
+                        <div class="action-btn-label">Find Stops</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Food, Hotels, Workshops</div>
+                    </a>
+                    
+                    <a href="sos.html" class="action-btn">
+                        <div class="action-btn-icon">🚨</div>
+                        <div class="action-btn-label">Emergency</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">SOS & Contacts</div>
+                    </a>
+                    
+                    <a href="summary.html" class="action-btn">
+                        <div class="action-btn-icon">📊</div>
+                        <div class="action-btn-label">Summary</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Trip Overview</div>
+                    </a>
+                    
+                    <a href="home.html" class="action-btn">
+                        <div class="action-btn-icon">🔄</div>
+                        <div class="action-btn-label">New Trip</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">Plan Another</div>
+                    </a>
+                </div>
+                
+                <!-- Start Journey Button -->
+                <button class="btn btn-primary btn-lg btn-full" style="margin-top: var(--space-8);" id="startJourneyBtn">
+                    <span>🚀</span>
+                    Start Your Journey!
+                </button>
+            `;
+
+            // Initialize map after content is injected
+            initMap(trip);
+
+            // Start journey button listener
+            document.getElementById('startJourneyBtn')?.addEventListener('click', function () {
+                Utils.showToast('Safe travels! 🏍️', 'success');
+            });
+        });
+    </script>
+</body>
+
+</html>
